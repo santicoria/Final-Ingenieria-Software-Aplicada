@@ -94,10 +94,10 @@ public class WebConfigurer implements ServletContextInitializer, WebServerFactor
         if (!CollectionUtils.isEmpty(config.getAllowedOrigins())
                 || !CollectionUtils.isEmpty(config.getAllowedOriginPatterns())) {
             log.debug("Registering CORS filter");
-            config.setAllowCredentials(false);
+            config.setAllowCredentials(true);
             config.addAllowedOrigin("https://other.domain.com"); // Allow Ionic development server
             config.addAllowedHeader("*");
-            config.addAllowedMethod("*");
+            // config.addAllowedMethod("*");
             source.registerCorsConfiguration("/api/**", config);
             source.registerCorsConfiguration("/management/**", config);
             source.registerCorsConfiguration("/v2/api-docs", config);
