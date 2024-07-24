@@ -22,8 +22,10 @@ describe('Limpiar SessionStorage', () => {
 
     it('Cartel informando de credenciales incorrectas', () => {
       cy.clickOnLoginItem();
-      cy.get(usernameLoginSelector).click().type('admin');
-      cy.get(passwordLoginSelector).type('John');
+      cy.get(usernameLoginSelector).click().then(() => {
+        cy.get(usernameLoginSelector).type('admin');
+        cy.get(passwordLoginSelector).type('John');
+      });
       cy.get(submitLoginSelector).click();
       cy.contains('Failed to sign in! Please check your credentials and try again.').should('be.visible');
     });
