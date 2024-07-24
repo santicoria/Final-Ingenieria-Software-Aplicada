@@ -5,60 +5,60 @@ node {
         checkout scm
     }
 
-    gitlabCommitStatus('build') {
-        docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
-            stage('check java') {
-                sh "java -version"
-            }
+    docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
+        stage('check java') {
+            sh "java -version"
+        }
 
-            stage('clean') {
-                sh "chmod +x mvnw"
-                sh "./mvnw -ntp clean -P-webapp"
-            }
-            stage('nohttp') {
-                sh "./mvnw -ntp checkstyle:check"
-            }
+        stage('clean') {
+            sh "chmod +x mvnw"
+            sh "./mvnw -ntp clean -P-webapp"
+        }
 
-            stage('install tools') {
-                sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:install-node-and-npm@install-node-and-npm"
-            }
+        stage('nohttp') {
+            sh "./mvnw -ntp checkstyle:check"
+        }
 
-            stage('npm install') {
-                sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
-            }
-            stage('backend tests') {
-                try {
-                    sh "./mvnw -ntp verify -P-webapp"
-                } catch(err) {
-                    throw err
-                } finally {
-                    junit '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
-                }
-            }
+        stage('install tools') {
+            sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:install-node-and-npm@install-node-and-npm"
+        }
 
-            stage('frontend tests') {
-                try {
-                   sh "npm install"
-                   sh "npm test"
-                } catch(err) {
-                    throw err
-                } finally {
-                    junit '**/target/test-results/TESTS-results-jest.xml'
-                }
-            }
+        stage('npm install') {
+            sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
+        }
 
-            stage('packaging') {
-                sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+        stage('backend tests') {
+            try {
+                sh "./mvnw -ntp verify -P-webapp"
+            } catch(err) {
+                throw err
+            } finally {
+                junit '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
             }
         }
 
-        def dockerImage
-        stage('publish docker') {
-            withCredentials([usernamePassword(credentialsId: 'dockerhub-login', passwordVariable:
-            'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
-            sh "./mvnw -ntp jib:build"
+        stage('frontend tests') {
+            try {
+                sh "npm install"
+                sh "npm test"
+            } catch(err) {
+                throw err
+            } finally {
+                junit '**/target/test-results/TESTS-results-jest.xml'
             }
+        }
+
+        stage('packaging') {
+            sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
+            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+        }
+    }
+
+    stage('publish docker') {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-login', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
+            sh "docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PWD"
+            def dockerImage = docker.build("your-docker-hub-username/your-image-name:${env.BUILD_ID}")
+            dockerImage.push()
         }
     }
 }
