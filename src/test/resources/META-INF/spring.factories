@@ -1,0 +1,2 @@
+org.springframework.test.context.ContextCustomizerFactory = com.ar.edu.um.coria.\
+    library.config.SqlTestContainersSpringContextCustomizerFactory
