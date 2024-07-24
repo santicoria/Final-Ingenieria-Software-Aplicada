@@ -22,11 +22,16 @@ describe('Limpiar SessionStorage', () => {
 
     it('Cartel informando de credenciales incorrectas', () => {
       cy.clickOnLoginItem();
-      cy.get(usernameLoginSelector).click().then(() => {
-        cy.get(usernameLoginSelector).type('admin');
-        cy.get(passwordLoginSelector).type('John');
-      });
-      cy.get(submitLoginSelector).click();
+      cy.get(usernameLoginSelector);
+      cy.click();
+      cy.type('admin');
+      cy.get(passwordLoginSelector);
+      cy.type('John');
+      cy.get(submitLoginSelector);
+      cy.click();
+      // cy.get(usernameLoginSelector).click().type('admin');
+      // cy.get(passwordLoginSelector).type('John');
+      // cy.get(submitLoginSelector).click();
       cy.contains('Failed to sign in! Please check your credentials and try again.').should('be.visible');
     });
   });
@@ -48,12 +53,25 @@ describe('Limpiar SessionStorage', () => {
 
     it('Crear un autor', () => {
       cy.clickOnEntityMenuItem('author');
-      cy.get(entityCreateButtonSelector).click();
-      cy.get(`[data-cy="firstName"]`).type('Sun').should('have.value', 'Sun');
+      cy.get(entityCreateButtonSelector);
+      cy.click();
 
-      cy.get(`[data-cy="lastName"]`).type('Tzu').should('have.value', 'Tzu');
+      cy.get(`[data-cy="firstName"]`);
+      cy.type('Sun');
+      cy.should('have.value', 'Sun');
 
-      cy.get(entityCreateSaveButtonSelector).click();
+      cy.get(`[data-cy="lastName"]`);
+      cy.type('Tzu');
+      cy.should('have.value', 'Tzu');
+
+      cy.get(entityCreateSaveButtonSelector);
+      cy.click();
+      // cy.get(entityCreateButtonSelector).click();
+      // cy.get(`[data-cy="firstName"]`).type('Sun').should('have.value', 'Sun');
+
+      // cy.get(`[data-cy="lastName"]`).type('Tzu').should('have.value', 'Tzu');
+
+      // cy.get(entityCreateSaveButtonSelector).click();
 
       cy.wait('@createRequest').then(({ response }) => expect(response.statusCode).to.equal(201));
     });
