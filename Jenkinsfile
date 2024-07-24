@@ -14,7 +14,6 @@ node {
             sh "chmod +x mvnw"
             sh "./mvnw -ntp clean -P-webapp"
         }
-
         stage('nohttp') {
             sh "./mvnw -ntp checkstyle:check"
         }
@@ -26,7 +25,6 @@ node {
         stage('npm install') {
             sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
         }
-
         stage('backend tests') {
             try {
                 sh "./mvnw -ntp verify -P-webapp"
@@ -39,8 +37,8 @@ node {
 
         stage('frontend tests') {
             try {
-                sh "npm install"
-                sh "npm test"
+               sh "npm install"
+               sh "npm test"
             } catch(err) {
                 throw err
             } finally {
@@ -54,11 +52,13 @@ node {
         }
     }
 
-    stage('publish docker') {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-login', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
-            sh "docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PWD"
-            def dockerImage = docker.build("your-docker-hub-username/your-image-name:${env.BUILD_ID}")
-            dockerImage.push()
+    def dockerImage
+        stage('publish docker') {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-login', passwordVariable:
+        'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
+        sh "./mvnw -ntp jib:build"
         }
     }
+
+    
 }
