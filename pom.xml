@@ -442,6 +442,9 @@
                                 </permission>
                             </permissions>
                         </extraDirectories>
+
+                        <disableUpdateChecks>true</disableUpdateChecks>
+
                     </configuration>
                 </plugin>
                 <plugin>
